@@ -1,0 +1,21 @@
+# Satır sonlarını otomatik düzelt (Windows/Linux farkı sorun çıkarmasın)
+* text=auto
+
+# Unity YAML dosyaları: metin olarak ele al, merge çakışmalarını azalt
+*.unity    text merge=unityyamlmerge eol=lf
+*.prefab   text merge=unityyamlmerge eol=lf
+*.asset    text merge=unityyamlmerge eol=lf
+*.mat      text merge=unityyamlmerge eol=lf
+*.anim     text merge=unityyamlmerge eol=lf
+*.controller text merge=unityyamlmerge eol=lf
+*.meta     text eol=lf
+
+# Kod
+*.cs       text diff=csharp eol=lf
+
+# İkili dosyalar
+*.png binary
+*.jpg binary
+*.fbx binary
+*.wav binary
+*.mp3 binary
