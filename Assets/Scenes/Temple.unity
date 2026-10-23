@@ -3821,6 +3821,8 @@ GameObject:
   - component: {fileID: 719633365}
   - component: {fileID: 719633364}
   - component: {fileID: 719633363}
+  - component: {fileID: 719633367}
+  - component: {fileID: 719633368}
   m_Layer: 0
   m_Name: Kart_Masasi
   m_TagString: Untagged
@@ -3921,6 +3923,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 719633361}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &719633367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719633361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30d79029ef3160e49aaef855509c68a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.Blackjack.BlackjackTable
+  player: {fileID: 1958986882}
+  rewardDoor: {fileID: 1402079895}
+  interactRange: 2.5
+  dealerDelay: 0.8
+--- !u!114 &719633368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719633361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34e7e4b63e5c21248afcea105ab5e029, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.Blackjack.WorldBlackjackView
+  cameraFollow: {fileID: 0}
+  seatOffset: {x: 0, y: 1.6, z: -0.9}
+  lookOffset: {x: 0, y: 0, z: 0.15}
+  cameraSpeed: 4
+  firstCardX: -0.55
+  cardSpacing: 0.32
+  dealerRowZ: 0.32
+  playerRowZ: -0.3
+  deckOffset: {x: 1.15, y: 0, z: 0.35}
+  dealInterval: 0.18
 --- !u!1 &722794586
 GameObject:
   m_ObjectHideFlags: 0
