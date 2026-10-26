@@ -1,4 +1,7 @@
+using AIAdventure.NPC;
 using AIAdventure.Player;
+using AIAdventure.Roulette;
+using AIAdventure.UI;
 using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,11 +28,13 @@ namespace AIAdventure.Level
         [SerializeField] private Material floorMaterial;
         [SerializeField] private Material paperMaterial;
         [SerializeField] private Material flameMaterial;
+        [SerializeField] private Material lampMaterial;
 
         [Header("Atmosfer")]
         [SerializeField] private Light sunLight;
 
         private const string RootName = "Crypt";
+        private const string BaronRootName = "BaronOdasi";
 
         private const float StairStartZ = 20f;
         private const int StairCount = 12;
@@ -64,6 +69,123 @@ namespace AIAdventure.Level
             Transform existing = transform.Find(RootName);
             if (existing != null) DestroyImmediate(existing.gameObject);
             MarkDirty();
+        }
+
+        /// <summary>
+        /// Avlu kapısının arkasına Baron'un odasını ve çıkış koridorunu inşa eder.
+        /// Mahzeni (Crypt) silmez; sadece kendi grubunu yeniden oluşturur.
+        ///   z 63-78   : Baron'un odası, ortada yuvarlak rulet masası
+        ///   z 78.5-88 : çıkış koridoru (üstü açık, gün ışığı), sonunda bitiş alanı
+        /// </summary>
+        [ContextMenu("Baron Odasını İnşa Et")]
+        private void BuildBaronRoom()
+        {
+            Transform existing = transform.Find(BaronRootName);
+            if (existing != null) DestroyImmediate(existing.gameObject);
+
+            Transform root = new GameObject(BaronRootName).transform;
+            root.SetParent(transform, false);
+            const float y = CourtyardY;
+
+            // Oda
+            Box("Oda_Zemin", root, new Vector3(0f, y - 0.25f, 70.5f), new Vector3(12f, 0.5f, 15f), floorMaterial);
+            Box("Oda_Tavan", root, new Vector3(0f, 0.25f, 70.5f), new Vector3(14f, 0.5f, 17f), wallMaterial);
+            Box("Oda_Duvar_Sol", root, new Vector3(-6.5f, -3f, 70.5f), new Vector3(1f, 6f, 17f), wallMaterial);
+            Box("Oda_Duvar_Sag", root, new Vector3(6.5f, -3f, 70.5f), new Vector3(1f, 6f, 17f), wallMaterial);
+            Box("Oda_ArkaDuvar_Sol", root, new Vector3(-4f, -3f, 78.5f), new Vector3(5f, 6f, 1f), wallMaterial);
+            Box("Oda_ArkaDuvar_Sag", root, new Vector3(4f, -3f, 78.5f), new Vector3(5f, 6f, 1f), wallMaterial);
+            Box("Cikis_KapiUstu", root, new Vector3(0f, -1.5f, 78.5f), new Vector3(3f, 3f, 1f), wallMaterial);
+
+            GameObject exitDoor = Box("Cikis_Kapisi", root, new Vector3(0f, y + 1.5f, 78.5f), new Vector3(3f, 3f, 0.5f), wallMaterial);
+            exitDoor.AddComponent<Gate>();
+            exitDoor.AddComponent<NavMeshObstacle>().carving = true;
+            exitDoor.AddComponent<NavMeshModifier>().ignoreFromBuild = true;
+
+            // Rulet masası ve Baron
+            GameObject table = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            table.name = "Rulet_Masasi";
+            table.transform.SetParent(root, false);
+            table.transform.localPosition = new Vector3(0f, y + 0.5f, 70.5f);
+            table.transform.localScale = new Vector3(2.4f, 0.5f, 2.4f);
+            if (wallMaterial != null) table.GetComponent<Renderer>().sharedMaterial = wallMaterial;
+            // Silindirin varsayılan kapsül çarpıştırıcısı bu ölçekte küreye dönüşür; kutu ile değiştir.
+            DestroyImmediate(table.GetComponent<Collider>());
+            table.AddComponent<BoxCollider>();
+
+            GameObject baron = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            baron.name = "Baron_Mortis";
+            baron.transform.SetParent(root, false);
+            baron.transform.localPosition = new Vector3(0f, y + 1f, 72.3f);
+            baron.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            BaronNpc baronNpc = baron.AddComponent<BaronNpc>();
+
+            Transform gun = Group(root, "Tabanca");
+            gun.localPosition = new Vector3(0.15f, y + 1.04f, 70.4f);
+            gun.localRotation = Quaternion.Euler(0f, 35f, 0f);
+            Box("Govde", gun, Vector3.zero, new Vector3(0.32f, 0.06f, 0.1f), lampMaterial);
+            Box("Kabza", gun, new Vector3(-0.17f, -0.01f, 0f), new Vector3(0.1f, 0.05f, 0.14f), wallMaterial);
+
+            table.AddComponent<ImGuiRouletteView>();
+            table.AddComponent<RouletteTable>().Configure(baronNpc, exitDoor);
+
+            // Işık
+            foreach (float tz in new[] { 66f, 75f })
+            {
+                Torch(root, $"Mesale_Oda_Sol_{tz}", new Vector3(-5.85f, y + 1.8f, tz));
+                Torch(root, $"Mesale_Oda_Sag_{tz}", new Vector3(5.85f, y + 1.8f, tz));
+            }
+
+            GameObject lampObject = new GameObject("Rulet_Lambasi");
+            lampObject.transform.SetParent(root, false);
+            lampObject.transform.localPosition = new Vector3(0f, -0.05f, 70.5f);
+            HangingLamp lamp = lampObject.AddComponent<HangingLamp>();
+            lamp.SetMaterials(lampMaterial, flameMaterial);
+            lamp.SetIntensity(1.5f);
+            lamp.Build();
+
+            // Çıkış koridoru (üstü açık) ve bitiş alanı
+            Box("Cikis_Zemin", root, new Vector3(0f, y - 0.25f, 83.25f), new Vector3(4f, 0.5f, 9.5f), floorMaterial);
+            Box("Cikis_Duvar_Sol", root, new Vector3(-2.5f, -3f, 83.25f), new Vector3(1f, 6f, 9.5f), wallMaterial);
+            Box("Cikis_Duvar_Sag", root, new Vector3(2.5f, -3f, 83.25f), new Vector3(1f, 6f, 9.5f), wallMaterial);
+            Box("Cikis_Son_Duvar", root, new Vector3(0f, -3f, 88.5f), new Vector3(6f, 6f, 1f), wallMaterial);
+
+            GameObject daylight = new GameObject("Gun_Isigi");
+            daylight.transform.SetParent(root, false);
+            daylight.transform.localPosition = new Vector3(0f, y + 3f, 86f);
+            Light day = daylight.AddComponent<Light>();
+            day.type = LightType.Point;
+            day.color = new Color(1f, 0.95f, 0.85f);
+            day.range = 12f;
+            day.intensity = 6f;
+
+            GameObject ending = new GameObject("Bitis_Alani");
+            ending.transform.SetParent(root, false);
+            ending.transform.localPosition = new Vector3(0f, y + 1.5f, 84f);
+            BoxCollider endArea = ending.AddComponent<BoxCollider>();
+            endArea.isTrigger = true;
+            endArea.size = new Vector3(4f, 3f, 2f);
+            ending.AddComponent<EndingZone>();
+
+            ExtendAtmosphereZone();
+            MarkDirty();
+            Debug.Log("[CryptBuilder] Baron'un odası inşa edildi. Rulet_Masasi'na Player'ı bağla, sonra Clear + Bake.");
+        }
+
+        /// <summary>Mahzenin karanlık atmosferini Baron'un odasını da kapsayacak şekilde uzatır.</summary>
+        private void ExtendAtmosphereZone()
+        {
+            Transform zone = transform.Find(RootName + "/Mahzen_Atmosfer_Alani");
+            if (zone == null)
+            {
+                Debug.LogWarning("[CryptBuilder] Mahzen_Atmosfer_Alani bulunamadı; önce mahzeni inşa et.");
+                return;
+            }
+
+            const float startZ = 21f;
+            const float endZ = 78.3f;
+            BoxCollider area = zone.GetComponent<BoxCollider>();
+            area.center = new Vector3(0f, 0f, (startZ + endZ) / 2f - zone.position.z);
+            area.size = new Vector3(24f, 12f, endZ - startZ);
         }
 
         // ---------------------------------------------------------------- Bölümler
@@ -240,8 +362,8 @@ namespace AIAdventure.Level
             Light light = lightObject.AddComponent<Light>();
             light.type = LightType.Point;
             light.color = new Color(1f, 0.55f, 0.2f);
-            light.range = 7f;
-            light.intensity = 3f;
+            light.range = 10f;
+            light.intensity = 6f;
             light.shadows = LightShadows.None;
             lightObject.AddComponent<TorchFlicker>();
         }

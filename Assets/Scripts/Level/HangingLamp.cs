@@ -41,8 +41,16 @@ namespace AIAdventure.Level
             transform.localRotation = baseRotation * Quaternion.Euler(x, 0f, z);
         }
 
+        public void SetMaterials(Material shade, Material bulb)
+        {
+            shadeMaterial = shade;
+            bulbMaterial = bulb;
+        }
+
+        public void SetIntensity(float value) => intensity = value;
+
         [ContextMenu("Lambayı Oluştur")]
-        private void Build()
+        public void Build()
         {
             for (int i = transform.childCount - 1; i >= 0; i--)
                 DestroyImmediate(transform.GetChild(i).gameObject);
