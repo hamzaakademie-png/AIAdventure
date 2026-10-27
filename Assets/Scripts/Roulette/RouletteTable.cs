@@ -120,7 +120,7 @@ namespace AIAdventure.Roulette
             if (canAct && keyboard.spaceKey.wasPressedThisFrame) PlayerPull();
         }
 
-        private void LateUpdate() => seatCamera.Tick(cameraSpeed);
+        private void LateUpdate() => seatCamera?.Tick(cameraSpeed);
 
         // ---------------------------------------------------------------- Oturma
 
@@ -138,7 +138,7 @@ namespace AIAdventure.Roulette
             messagesLeft = messagesPerTurn;
 
             view.AddNarration("Baron Mortis eski tabancayı masanın ortasına bırakıyor. Altı hazne, tek kurşun.");
-            view.AddNarration("İlk tetik senin. Çekmeden önce onunla konuşabilirsin.");
+            view.AddNarration("İlk tetik senin. Çekmeden önce onunla konuşabilir, sinirlerini bozabilir ya da pazarlık edebilirsin.");
             UpdateHint();
         }
 
@@ -195,19 +195,56 @@ namespace AIAdventure.Roulette
         private void ApplyBaronResponse(NpcResponse response)
         {
             view.AddChatLine("Baron", response.Reply);
-            game.ApplyNerveChange(response.NerveChange);
+
+            // Model niyeti söyler, puanı oyun kuralları hesaplar.
+            int delta = NerveRules.Delta(response.Intent, response.Impact);
+            string effect = NerveRules.Describe(response.Intent, delta);
+            if (effect != null) view.AddNarration(effect);
+
+            game.ApplyNerveChange(delta);
             if (game.IsOver) return;
 
-            switch (response.Action)
+            NpcAction action = NerveRules.ValidateAction(response.Intent, response.Action);
+            if (action != response.Action)
+                Debug.Log($"[Baron] Tutarsız eylem reddedildi: {response.Action} ({response.Intent} niyetiyle uyuşmuyor)");
+
+            switch (action)
             {
                 case NpcAction.Spin:
                     game.SpinCylinder();
-                    view.AddNarration("Baron silindiri öfkeyle çeviriyor. İhtimaller sıfırlandı.");
+                    view.AddNarration("Baron silindiri çeviriyor. İhtimaller sıfırlandı.");
                     break;
+
                 case NpcAction.PassTurn:
                     game.BaronPassesTurn();
                     view.AddNarration("Baron sırasını sana bıraktı: bir sonraki tetiği de sen çekeceksin.");
                     break;
+
+                case NpcAction.AddBullet:
+                    if (game.AddBullet())
+                        view.AddNarration($"Baron cebinden bir kurşun daha çıkarıp silindire sürüyor. Artık {game.Bullets} kurşun var.");
+                    break;
+
+                case NpcAction.AcceptBaronFirst:
+                    if (game.GiveTurnToBaron())
+                    {
+                        view.AddNarration("Anlaşma: Baron bu turda senden önce çekecek.");
+                        messagesLeft = messagesPerTurn;
+                        StartCoroutine(BaronTurn());
+                    }
+                    break;
+
+                case NpcAction.AcceptDouble:
+                    game.BaronAgreesToPullTwice();
+                    view.AddNarration("Anlaşma: Baron sırası gelince art arda iki kez çekecek.");
+                    break;
+
+                case NpcAction.AcceptRemoveBullet:
+                    view.AddNarration(game.RemoveBullet()
+                        ? $"Anlaşma: Baron bir kurşunu çıkarıp masaya bırakıyor. Silindirde {game.Bullets} kurşun kaldı."
+                        : "Silindirde çıkarılacak fazladan kurşun yok.");
+                    break;
+
                 case NpcAction.Surrender:
                     game.Surrender();
                     break;
@@ -216,10 +253,12 @@ namespace AIAdventure.Roulette
 
         private string BuildContext()
         {
-            return $"Baron'un soğukkanlılığı: {game.Nerve}/100. " +
+            string deals = game.BaronPullsTwiceNextTurn ? " Anlaşma gereği sıran gelince iki kez çekeceksin." : "";
+            return $"Soğukkanlılığın: {game.Nerve}/100 (tetiği çekememe ihtimalin: %{Mathf.RoundToInt(game.HesitationChance * 100f)}). " +
+                   $"Silindirde {game.Bullets} kurşun var. " +
                    $"Bu silindirde çekilen tetik: {game.PullsSinceSpin}/{RouletteGame.ChamberCount}. " +
-                   $"Sıradaki tetikte mermi ihtimali: %{Mathf.RoundToInt(game.NextShotChance * 100f)}. " +
-                   $"Sıra oyuncuda.";
+                   $"Sıradaki tetikte patlama ihtimali: %{Mathf.RoundToInt(game.NextShotChance * 100f)}. " +
+                   $"Sıra oyuncuda.{deals}";
         }
 
         // ---------------------------------------------------------------- Tetik
@@ -242,13 +281,30 @@ namespace AIAdventure.Roulette
         {
             baronActing = true;
             view.SetHint("Baron'un sırası...");
-            view.AddNarration("Baron tabancayı yavaşça şakağına götürüyor...");
+            view.AddNarration(game.HesitationChance > 0f
+                ? "Baron tabancayı alıyor. Elleri belirgin şekilde titriyor..."
+                : "Baron tabancayı yavaşça şakağına götürüyor...");
 
             yield return new WaitForSeconds(baronPullDelay);
 
-            bool fired = game.PullTrigger();
+            // Titreyen el: soğukkanlılık düşükse Baron tetiği çekemeyebilir.
+            if (game.RollBaronHesitation())
+            {
+                baronActing = false;
+                yield break;
+            }
+
+            while (!game.IsOver && game.Turn == RouletteTurn.Baron)
+            {
+                bool fired = game.PullTrigger();
+                if (fired || game.Turn != RouletteTurn.Baron) break;
+
+                view.AddNarration("Anlaşma gereği Baron tabancayı bir kez daha kaldırıyor...");
+                yield return new WaitForSeconds(baronPullDelay);
+            }
+
             baronActing = false;
-            if (!fired) UpdateHint();
+            UpdateHint();
         }
 
         private void OnTriggerPulled(RouletteTurn shooter, bool fired)
@@ -261,7 +317,7 @@ namespace AIAdventure.Roulette
 
             view.AddNarration(shooter == RouletteTurn.Player
                 ? "Klik. Boş. Kalbin yerinden çıkacak gibi."
-                : "Klik. Boş. Baron derin bir nefes veriyor. Sıra sende.");
+                : "Klik. Boş. Baron derin bir nefes veriyor.");
         }
 
         private void OnGameOver(RouletteOutcome outcome)
@@ -276,6 +332,14 @@ namespace AIAdventure.Roulette
                     door?.Open();
                     view.AddNarration("Patlama mahzende yankılanıyor. Baron Mortis'in silueti duman gibi dağılıyor...");
                     view.AddNarration("Arkadaki çıkış kapısı gıcırdayarak açıldı.");
+                    view.ShowEnding(true, null);
+                    view.SetHint("[Esc] Masadan kalk");
+                    break;
+
+                case RouletteOutcome.BaronFlinched:
+                    door?.Open();
+                    view.AddNarration("Baron'un parmağı tetikte donup kalıyor. Çekemiyor. Tabanca elinden kayıp masaya düşüyor...");
+                    view.AddNarration("Korkusu onu yendi. Arkadaki çıkış kapısı gıcırdayarak açıldı.");
                     view.ShowEnding(true, null);
                     view.SetHint("[Esc] Masadan kalk");
                     break;

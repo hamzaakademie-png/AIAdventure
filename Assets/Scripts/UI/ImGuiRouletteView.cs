@@ -121,29 +121,52 @@ namespace AIAdventure.UI
 
         private void DrawStatus()
         {
-            Rect panel = new Rect(30f, 30f, 420f, 190f);
+            Rect panel = new Rect(30f, 30f, 460f, 330f);
             Fill(panel, new Color(0f, 0f, 0f, 0.55f));
+            float x = panel.x + 20f;
+            float w = panel.width - 40f;
 
-            GUI.Label(new Rect(panel.x + 20f, panel.y + 12f, 380f, 30f), "Baron'un Soğukkanlılığı", titleStyle);
-            Rect bar = new Rect(panel.x + 20f, panel.y + 50f, 380f, 22f);
+            // Soğukkanlılık çubuğu; 50 çizgisi titremenin başladığı eşiği gösterir.
+            GUI.Label(new Rect(x, panel.y + 12f, w, 30f), "Baron'un Soğukkanlılığı", titleStyle);
+            Rect bar = new Rect(x, panel.y + 48f, w, 22f);
             Fill(bar, new Color(0.2f, 0.2f, 0.2f, 0.9f));
-            float nerve = game.Nerve / (float)RouletteGame.StartingNerve;
+            float nerve = game.Nerve / (float)RouletteGame.MaxNerve;
             Fill(new Rect(bar.x, bar.y, bar.width * nerve, bar.height),
                 Color.Lerp(new Color(0.8f, 0.15f, 0.1f), new Color(0.9f, 0.75f, 0.3f), nerve));
+            float threshold = RouletteGame.HesitationThreshold / (float)RouletteGame.MaxNerve;
+            Fill(new Rect(bar.x + bar.width * threshold - 1f, bar.y - 4f, 2f, bar.height + 8f), Color.white);
             GUI.Label(new Rect(bar.x, bar.y, bar.width, bar.height), $"{game.Nerve} / 100", smallStyle);
 
-            // Tabanca: çekilmiş hazneler gri, kalanlar koyu. Merminin yeri gösterilmez.
+            int hesitation = Mathf.RoundToInt(game.HesitationChance * 100f);
+            smallStyle.normal.textColor = hesitation > 0 ? new Color(1f, 0.45f, 0.35f) : new Color(0.7f, 0.7f, 0.7f);
+            GUI.Label(new Rect(x, panel.y + 76f, w, 24f),
+                hesitation > 0 ? $"Elleri titriyor! Tetiği çekememe ihtimali: %{hesitation}"
+                               : "Elleri sağlam (50'nin altına düşürürsen titremeye başlar)", smallStyle);
+            smallStyle.normal.textColor = Color.white;
+
+            // Tabanca: çekilmiş hazneler gri, kalanlar koyu. Kurşunların yeri gösterilmez.
             for (int i = 0; i < RouletteGame.ChamberCount; i++)
             {
-                Rect chamber = new Rect(panel.x + 20f + i * 46f, panel.y + 90f, 36f, 36f);
+                Rect chamber = new Rect(x + i * 46f, panel.y + 112f, 36f, 36f);
                 Fill(chamber, i < game.PullsSinceSpin ? new Color(0.45f, 0.45f, 0.45f) : new Color(0.12f, 0.1f, 0.08f));
             }
+            GUI.Label(new Rect(x + 285f, panel.y + 118f, 150f, 24f), $"Kurşun: {game.Bullets}", titleStyle);
 
             string turn = game.IsOver ? "Oyun bitti" : game.Turn == RouletteTurn.Player ? "Sıra: SENDE" : "Sıra: BARON'DA";
-            GUI.Label(new Rect(panel.x + 20f, panel.y + 136f, 380f, 24f), turn, titleStyle);
+            GUI.Label(new Rect(x, panel.y + 158f, w, 24f), turn, titleStyle);
+
             if (!game.IsOver)
-                GUI.Label(new Rect(panel.x + 20f, panel.y + 160f, 380f, 24f),
-                    $"Sıradaki tetikte mermi ihtimali: %{Mathf.RoundToInt(game.NextShotChance * 100f)}", smallStyle);
+            {
+                GUI.Label(new Rect(x, panel.y + 184f, w, 24f),
+                    $"Sıradaki tetikte patlama ihtimali: %{Mathf.RoundToInt(game.NextShotChance * 100f)}", smallStyle);
+                if (game.BaronPullsTwiceNextTurn)
+                    GUI.Label(new Rect(x, panel.y + 208f, w, 24f), "Anlaşma: Baron sırası gelince iki kez çekecek", smallStyle);
+            }
+
+            smallStyle.normal.textColor = new Color(0.75f, 0.75f, 0.75f);
+            GUI.Label(new Rect(x, panel.y + 240f, w, 80f),
+                "Pazarlık örnekleri:\n\"Önce sen çek\" · \"İki kez çek\"\n\"Bir kurşunu çıkar\" · \"Silindiri çevir\"", smallStyle);
+            smallStyle.normal.textColor = Color.white;
         }
 
         private void DrawChat(float width)
@@ -156,13 +179,22 @@ namespace AIAdventure.UI
 
             Fill(new Rect(x, top, chatWidth, logHeight + 130f), new Color(0f, 0f, 0f, 0.5f));
 
-            for (int i = 0; i < lines.Count; i++)
+            // Uzun satırlar alta kayar; en yeni satırlar alttan yukarı doğru dizilir,
+            // alana sığmayan eski satırlar gösterilmez.
+            float textWidth = chatWidth - 40f;
+            float bottom = top + logHeight - 6f;
+            for (int i = lines.Count - 1; i >= 0; i--)
             {
                 Line line = lines[i];
                 lineStyle.normal.textColor = line.Color;
                 lineStyle.fontStyle = line.Speaker == null ? FontStyle.Italic : FontStyle.Normal;
                 string text = line.Speaker == null ? line.Text : $"{line.Speaker}: {line.Text}";
-                GUI.Label(new Rect(x + 20f, top + 10f + i * lineHeight, chatWidth - 40f, lineHeight), text, lineStyle);
+
+                float height = lineStyle.CalcHeight(new GUIContent(text), textWidth);
+                if (bottom - height < top + 6f) break;
+
+                bottom -= height;
+                GUI.Label(new Rect(x + 20f, bottom, textWidth, height), text, lineStyle);
             }
 
             float inputTop = top + logHeight + 10f;
