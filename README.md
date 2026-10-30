@@ -5,7 +5,7 @@ Kocaeli Üniversitesi, Teknoloji Fakültesi, Bilişim Sistemleri Mühendisliği
 
 | | |
 |---|---|
-| **Ekip** | Hamza Akdemir, _Ekip arkadaşı adı_ |
+| **Ekip** | Hamza Akdemir, Eren Özdemir |
 | **Tarih** | Kasım 2026 |
 | **Motor** | Unity 6.6 (6000.6.0f1), C# |
 | **Yerel LLM** | Ollama + `llama3.2:3b` |
