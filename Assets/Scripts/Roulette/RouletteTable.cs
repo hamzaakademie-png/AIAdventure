@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using AIAdventure.Core;
+using AIAdventure.Level;
 using AIAdventure.LLM;
 using AIAdventure.NPC;
 using AIAdventure.Player;
@@ -28,6 +29,13 @@ namespace AIAdventure.Roulette
         [SerializeField] private float baronPullDelay = 2.2f;
         [SerializeField] private int messagesPerTurn = 2;
 
+        [Header("Görsel ve ses")]
+        [Tooltip("Üzerinde BaronBody olan Baron modeli.")]
+        [SerializeField] private GameObject baronBodyObject;
+        [SerializeField] private RouletteSounds sounds;
+        [SerializeField] private Revolver revolver;
+        [SerializeField] private float slamDelay = 0.6f;
+
         [Header("Kamera")]
         [SerializeField] private Vector3 seatOffset = new Vector3(0f, 1.5f, -1.7f);
         [SerializeField] private Vector3 lookOffset = new Vector3(0f, 0.5f, 1.0f);
@@ -37,6 +45,7 @@ namespace AIAdventure.Roulette
         private IRouletteView view;
         private IOpenable door;
         private SeatCameraController seatCamera;
+        private IBaronBody body;
         private Collider tableCollider;
         private bool seated;
         private bool baronActing;
@@ -57,6 +66,8 @@ namespace AIAdventure.Roulette
             view = GetComponent<IRouletteView>();
             tableCollider = GetComponent<Collider>();
             if (exitDoor != null) door = exitDoor.GetComponent<IOpenable>();
+            if (baronBodyObject != null) baronBodyObject.TryGetComponent(out body);
+            if (revolver != null) revolver.SpinStarted += OnRevolverSpin;
 
             CameraFollow follow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
             seatCamera = new SeatCameraController(follow);
@@ -81,6 +92,7 @@ namespace AIAdventure.Roulette
         {
             game.TriggerPulled -= OnTriggerPulled;
             game.GameOver -= OnGameOver;
+            if (revolver != null) revolver.SpinStarted -= OnRevolverSpin;
         }
 
         private Vector3 TableTop =>
@@ -133,13 +145,13 @@ namespace AIAdventure.Roulette
             seatCamera.Sit(TableTop + transform.rotation * seatOffset, TableTop + transform.rotation * lookOffset);
 
             game.Start();
+            body?.SetNervous(false);
             baron.ResetConversation();
             baron.WarmUp();
             messagesLeft = messagesPerTurn;
 
             view.AddNarration("Baron Mortis eski tabancayı masanın ortasına bırakıyor. Altı hazne, tek kurşun.");
-            view.AddNarration("İlk tetik senin. Çekmeden önce onunla konuşabilir, sinirlerini bozabilir ya da pazarlık edebilirsin.");
-            UpdateHint();
+            StartCoroutine(BaronLoadsGun());
         }
 
         private void StandUp()
@@ -196,12 +208,18 @@ namespace AIAdventure.Roulette
         {
             view.AddChatLine("Baron", response.Reply);
 
+            // Beden dili: kızar, güler, gerilir ya da konuşur.
+            body?.React(response.Intent);
+            if (response.Intent == PlayerIntent.Insult && sounds != null)
+                StartCoroutine(PlayDelayed(sounds.PlayTableSlam, slamDelay));
+
             // Model niyeti söyler, puanı oyun kuralları hesaplar.
             int delta = NerveRules.Delta(response.Intent, response.Impact);
             string effect = NerveRules.Describe(response.Intent, delta);
             if (effect != null) view.AddNarration(effect);
 
             game.ApplyNerveChange(delta);
+            body?.SetNervous(game.HesitationChance > 0f);
             if (game.IsOver) return;
 
             NpcAction action = NerveRules.ValidateAction(response.Intent, response.Action);
@@ -212,6 +230,8 @@ namespace AIAdventure.Roulette
             {
                 case NpcAction.Spin:
                     game.SpinCylinder();
+                    if (revolver != null) revolver.Spin();
+                    else if (sounds != null) sounds.PlaySpin();
                     view.AddNarration("Baron silindiri çeviriyor. İhtimaller sıfırlandı.");
                     break;
 
@@ -285,22 +305,32 @@ namespace AIAdventure.Roulette
                 ? "Baron tabancayı alıyor. Elleri belirgin şekilde titriyor..."
                 : "Baron tabancayı yavaşça şakağına götürüyor...");
 
-            yield return new WaitForSeconds(baronPullDelay);
+            // Beden varsa silahı gerçekten alıp şakağına götürür; yoksa sadece bekler.
+            if (body != null) yield return body.RaiseGunToTemple();
+            else yield return new WaitForSeconds(baronPullDelay);
 
             // Titreyen el: soğukkanlılık düşükse Baron tetiği çekemeyebilir.
             if (game.RollBaronHesitation())
             {
+                if (body != null) yield return body.LowerGun();
                 baronActing = false;
                 yield break;
             }
 
+            bool shot = false;
             while (!game.IsOver && game.Turn == RouletteTurn.Baron)
             {
-                bool fired = game.PullTrigger();
-                if (fired || game.Turn != RouletteTurn.Baron) break;
+                shot = game.PullTrigger();
+                if (shot || game.Turn != RouletteTurn.Baron) break;
 
-                view.AddNarration("Anlaşma gereği Baron tabancayı bir kez daha kaldırıyor...");
+                view.AddNarration("Anlaşma gereği Baron tetiği bir kez daha çekecek...");
                 yield return new WaitForSeconds(baronPullDelay);
+            }
+
+            if (body != null)
+            {
+                if (shot) body.Die();
+                else yield return body.LowerGun();
             }
 
             baronActing = false;
@@ -311,9 +341,13 @@ namespace AIAdventure.Roulette
         {
             if (fired)
             {
+                if (sounds != null) sounds.PlayGunshot();
+                if (shooter == RouletteTurn.Player && revolver != null) revolver.Fire();
                 view.FlashShot();
                 return;
             }
+
+            if (sounds != null) sounds.PlayClick();
 
             view.AddNarration(shooter == RouletteTurn.Player
                 ? "Klik. Boş. Kalbin yerinden çıkacak gibi."
@@ -352,6 +386,34 @@ namespace AIAdventure.Roulette
                     view.SetHint("[Esc] Masadan kalk");
                     break;
             }
+        }
+
+        /// <summary>Oyun başında Baron mermiyi silaha koyar ve silindiri çevirir.</summary>
+        private IEnumerator BaronLoadsGun()
+        {
+            baronActing = true;
+            view.SetHint("Baron silahı hazırlıyor...");
+
+            if (body != null)
+            {
+                view.AddNarration("Baron masadaki tek kurşunu alıp silindire yerleştiriyor...");
+                yield return body.LoadGun();
+            }
+
+            baronActing = false;
+            view.AddNarration("İlk tetik senin. Çekmeden önce onunla konuşabilir, sinirlerini bozabilir ya da pazarlık edebilirsin.");
+            UpdateHint();
+        }
+
+        private void OnRevolverSpin()
+        {
+            if (sounds != null) sounds.PlaySpin();
+        }
+
+        private static IEnumerator PlayDelayed(Action action, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            action();
         }
 
         private void UpdateHint()
