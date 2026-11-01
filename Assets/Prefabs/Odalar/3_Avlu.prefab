@@ -1107,6 +1107,8 @@ MonoBehaviour:
   playerRowZ: -0.3
   deckOffset: {x: 1.15, y: 0, z: 0.35}
   dealInterval: 0.18
+  dealerObject: {fileID: 1968197635817881819}
+  animatedDealInterval: 1.2
 --- !u!1 &884741697947287521
 GameObject:
   m_ObjectHideFlags: 0
@@ -2042,6 +2044,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8108370751446005319}
   - component: {fileID: 1319419521836775438}
+  - component: {fileID: 4610112777512158463}
   m_Layer: 0
   m_Name: Spot_Isik
   m_TagString: Untagged
@@ -2129,6 +2132,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &4610112777512158463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2375410535496658346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &2613247196214267429
 GameObject:
   m_ObjectHideFlags: 0
@@ -6233,10 +6265,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6468900570749793305, guid: 619a05f7c0b444448b5449035fe9f078, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 360778878546950705}
   m_SourcePrefab: {fileID: 100100000, guid: 619a05f7c0b444448b5449035fe9f078, type: 3}
 --- !u!4 &954824543733377615 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5752891423018049165, guid: 619a05f7c0b444448b5449035fe9f078, type: 3}
   m_PrefabInstance: {fileID: 4798118771886437570}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1968197635817881819 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6468900570749793305, guid: 619a05f7c0b444448b5449035fe9f078, type: 3}
+  m_PrefabInstance: {fileID: 4798118771886437570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &360778878546950705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968197635817881819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bc6bb4c298f77b459d55d75115fa3c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.Blackjack.DealerBody
+  dealTrigger: Dagit
+  releaseDelay: 0.6
