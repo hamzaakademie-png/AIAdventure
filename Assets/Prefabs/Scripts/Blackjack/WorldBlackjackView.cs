@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using AIAdventure.Player;
 using AIAdventure.UI;
@@ -29,6 +30,12 @@ namespace AIAdventure.Blackjack
         [SerializeField] private Vector3 deckOffset = new Vector3(1.15f, 0f, 0.35f);
         [SerializeField] private float dealInterval = 0.18f;
 
+        [Header("Kurpiyer")]
+        [Tooltip("Kurpiyerin modeli (üzerinde DealerBody olan obje). Boş bırakılırsa kartlar animasyonsuz dağıtılır.")]
+        [SerializeField] private GameObject dealerObject;
+        [Tooltip("Kurpiyer varken iki kart arasındaki süre. Dağıtma animasyonu bitmeden yenisi başlamasın diye uzun.")]
+        [SerializeField] private float animatedDealInterval = 1.2f;
+
         private readonly List<CardVisual> dealerCards = new List<CardVisual>();
         private readonly List<CardVisual> playerCards = new List<CardVisual>();
 
@@ -42,6 +49,7 @@ namespace AIAdventure.Blackjack
         private TextMesh dealerLabel;
         private TextMesh playerLabel;
         private float nextDealTime;
+        private IDealerBody dealer;
 
         private GUIStyle subtitleStyle;
         private GUIStyle promptStyle;
@@ -57,6 +65,14 @@ namespace AIAdventure.Blackjack
             if (cameraFollow == null && Camera.main != null)
                 cameraFollow = Camera.main.GetComponent<CameraFollow>();
             viewCamera = cameraFollow != null ? cameraFollow.GetComponent<Camera>() : Camera.main;
+
+            // Kurpiyeri sadece arayüz üzerinden tanıyoruz; bağlı değilse eski davranış devam eder.
+            if (dealerObject != null)
+            {
+                dealer = dealerObject.GetComponent<IDealerBody>();
+                if (dealer == null)
+                    Debug.LogWarning("[Blackjack] Dealer Object'te DealerBody yok, kartlar animasyonsuz dağıtılacak.");
+            }
 
             BuildDressing();
         }
@@ -130,11 +146,27 @@ namespace AIAdventure.Blackjack
             Vector3 target = Point(new Vector3(firstCardX + index * cardSpacing, 0.009f + index * 0.001f, rowZ));
             Vector3 from = Point(deckOffset) + Vector3.up * 0.07f;
 
-            float delay = Mathf.Max(0f, nextDealTime - Time.time);
-            nextDealTime = Time.time + delay + dealInterval;
+            // Sıradaki dağıtımın ne zaman başlayacağı: önceki kartlar bitmeden yenisi başlamaz.
+            float interval = dealer != null ? animatedDealInterval : dealInterval;
+            float startDelay = Mathf.Max(0f, nextDealTime - Time.time);
+            nextDealTime = Time.time + startDelay + interval;
 
-            card.Deal(from, target, transform.rotation, delay, faceDown);
+            // Kurpiyer varsa önce el hareketi başlar, kart el öne uzandığı anda desteden uçar.
+            float cardDelay = startDelay;
+            if (dealer != null)
+            {
+                StartCoroutine(PlayDealAfter(startDelay));
+                cardDelay += dealer.ReleaseDelay;
+            }
+
+            card.Deal(from, target, transform.rotation, cardDelay, faceDown);
             visuals.Add(card);
+        }
+
+        private IEnumerator PlayDealAfter(float delay)
+        {
+            if (delay > 0f) yield return new WaitForSeconds(delay);
+            dealer.PlayDeal();
         }
 
         private void UpdateLabels()
@@ -165,6 +197,8 @@ namespace AIAdventure.Blackjack
             dealerCards.Clear();
             playerCards.Clear();
             nextDealTime = 0f;
+            // Masadan kalkınca bekleyen el hareketleri de iptal olsun.
+            StopAllCoroutines();
         }
 
         // ---------------------------------------------------------------- Masa süsleri
