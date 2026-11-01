@@ -8,38 +8,60 @@ namespace AIAdventure.Companion
 {
     /// <summary>
     /// Companion'ın beyni: durum makinesini çalıştırır.
-    /// Hareketi NavMeshAgent yapar; bu sınıf sadece hangi durumda olunacağına karar verir.
+    /// Hareketi NavMeshAgent yapar; bu sınıf sadece hangi durumda olunacağına
+    /// ve ne hızla gidileceğine karar verir.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(CompanionSensor))]
     public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     {
         [SerializeField] private Transform player;
+
+        [Header("Takip")]
+        [Tooltip("Oyuncuya bu kadar yaklaşınca durur.")]
         [SerializeField] private float followDistance = 2.5f;
-        [SerializeField] private float interactRange = 1.2f;
-        [SerializeField] private float interactDuration = 1f;
+        [Tooltip("Oyuncu bu kadar uzaklaşınca peşinden gitmeye başlar.")]
+        [SerializeField] private float resumeDistance = 4f;
+        [Tooltip("Oyuncu bu kadar uzaktaysa koşarak yetişir.")]
+        [SerializeField] private float catchUpDistance = 7f;
+
+        [Header("Hız")]
+        [SerializeField] private float walkSpeed = 2f;
+        [SerializeField] private float runSpeed = 4.5f;
+        [SerializeField] private float acceleration = 6f;
+        [SerializeField] private float angularSpeed = 400f;
         [SerializeField] private float slowDownDistance = 0.8f;
 
+        [Header("Etkileşim")]
+        [SerializeField] private float interactRange = 1.2f;
+        [SerializeField] private float interactDuration = 1f;
+
         private ICompanionState currentState;
-        private float baseSpeed;
+        private float desiredSpeed;
 
         public NavMeshAgent Agent { get; private set; }
         public CompanionSensor Sensor { get; private set; }
         public Transform Player => player;
         public float FollowDistance => followDistance;
+        public float ResumeDistance => resumeDistance;
+        public float CatchUpDistance => catchUpDistance;
+        public float WalkSpeed => walkSpeed;
+        public float RunSpeed => runSpeed;
         public float InteractDuration => interactDuration;
         public string CurrentStateName => currentState != null ? currentState.Name : "None";
 
         public bool IsBusy => currentState != null && currentState is not FollowState;
 
-        /// <summary>Durum değiştiğinde tetiklenir (UI ve testler için).</summary>
+        /// <summary>Durum değiştiğinde tetiklenir (animasyon, UI ve testler için).</summary>
         public event Action<string> StateChanged;
 
         private void Awake()
         {
             Agent = GetComponent<NavMeshAgent>();
             Sensor = GetComponent<CompanionSensor>();
-            baseSpeed = Agent.speed;
+            Agent.acceleration = acceleration;
+            Agent.angularSpeed = angularSpeed;
+            desiredSpeed = walkSpeed;
         }
 
         private void Start()
@@ -73,10 +95,20 @@ namespace AIAdventure.Companion
             ChangeState(new MoveToTargetState(this, target));
         }
 
+        public void SetDesiredSpeed(float speed) => desiredSpeed = speed;
+
         /// <summary>Sensör yakında engel görürse yavaşlar.</summary>
         public void ApplySensorSpeed()
         {
-            Agent.speed = Sensor.HasObstacleWithin(slowDownDistance) ? baseSpeed * 0.5f : baseSpeed;
+            Agent.speed = Sensor.HasObstacleWithin(slowDownDistance) ? desiredSpeed * 0.5f : desiredSpeed;
+        }
+
+        public float DistanceToPlayer()
+        {
+            if (player == null) return 0f;
+            Vector3 offset = player.position - transform.position;
+            offset.y = 0f;
+            return offset.magnitude;
         }
 
         public bool IsWithinInteractRange(Vector3 point)
