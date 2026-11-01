@@ -29,6 +29,7 @@ namespace AIAdventure.Companion.States
         {
             elapsed = 0f;
             companion.Agent.stoppingDistance = 0.5f;
+            companion.SetDesiredSpeed(companion.RunSpeed);
             requestFailed = !companion.Agent.SetDestination(target.Position);
         }
 
