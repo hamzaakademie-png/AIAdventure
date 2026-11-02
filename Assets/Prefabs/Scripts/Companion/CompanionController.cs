@@ -36,8 +36,16 @@ namespace AIAdventure.Companion
         [SerializeField] private float interactRange = 1.2f;
         [SerializeField] private float interactDuration = 1f;
 
+        [Header("Et (ödül)")]
+        [Tooltip("Açıksa tilki ilk emirden önce et ister.")]
+        [SerializeField] private bool requiresTreat = true;
+        [SerializeField] private float eatDuration = 2f;
+        [Tooltip("Yere bırakılacak et modeli. Boşsa basit bir et parçası oluşturulur.")]
+        [SerializeField] private GameObject treatPrefab;
+
         private ICompanionState currentState;
         private float desiredSpeed;
+        private bool fed;
 
         public NavMeshAgent Agent { get; private set; }
         public CompanionSensor Sensor { get; private set; }
@@ -48,9 +56,12 @@ namespace AIAdventure.Companion
         public float WalkSpeed => walkSpeed;
         public float RunSpeed => runSpeed;
         public float InteractDuration => interactDuration;
+        public float EatDuration => eatDuration;
+        public GameObject TreatPrefab => treatPrefab;
         public string CurrentStateName => currentState != null ? currentState.Name : "None";
 
         public bool IsBusy => currentState != null && currentState is not FollowState;
+        public bool WantsTreat => requiresTreat && !fed;
 
         /// <summary>Durum değiştiğinde tetiklenir (animasyon, UI ve testler için).</summary>
         public event Action<string> StateChanged;
@@ -92,7 +103,19 @@ namespace AIAdventure.Companion
                 Debug.Log("[Companion] Meşgulüm, önce elimdeki işi bitiriyorum.");
                 return;
             }
+            if (WantsTreat)
+            {
+                Debug.Log("[Companion] Tilki ilgisiz, karnı aç görünüyor.");
+                return;
+            }
             ChangeState(new MoveToTargetState(this, target));
+        }
+
+        public void FeedThenInteract(IInteractable target)
+        {
+            if (target == null || !target.CanInteract || IsBusy) return;
+            fed = true;
+            ChangeState(new EatState(this, target));
         }
 
         public void SetDesiredSpeed(float speed) => desiredSpeed = speed;

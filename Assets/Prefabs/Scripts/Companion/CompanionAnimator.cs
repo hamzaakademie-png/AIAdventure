@@ -7,13 +7,14 @@ namespace AIAdventure.Companion
     /// Tilki modelinin üzerinde durur. Animator'daki "Speed" parametresini
     /// NavMeshAgent'ın gerçek hızıyla besler; Idle/Walk/Run geçişini Blend Tree
     /// yumuşak biçimde yapar (ani geçiş, "ping" yok).
-    /// Kolu çekerken "Interact" tetikleyicisini çalıştırır.
+    /// Kolu çekerken "Interact", et yerken "Eat" tetikleyicisini çalıştırır (varsa).
     /// </summary>
     [RequireComponent(typeof(Animator))]
     public class CompanionAnimator : MonoBehaviour
     {
         private static readonly int SpeedHash = Animator.StringToHash("Speed");
         private static readonly int InteractHash = Animator.StringToHash("Interact");
+        private static readonly int EatHash = Animator.StringToHash("Eat");
 
         [Tooltip("Speed parametresinin hedefe yaklaşma süresi (sn). Büyük = daha yumuşak.")]
         [SerializeField] private float dampTime = 0.15f;
@@ -21,7 +22,7 @@ namespace AIAdventure.Companion
         private Animator animator;
         private NavMeshAgent agent;
         private CompanionController controller;
-        private bool hasSpeed, hasInteract;
+        private bool hasSpeed, hasInteract, hasEat;
 
         private void Awake()
         {
@@ -35,6 +36,7 @@ namespace AIAdventure.Companion
             {
                 if (p.nameHash == SpeedHash) hasSpeed = true;
                 if (p.nameHash == InteractHash) hasInteract = true;
+                if (p.nameHash == EatHash) hasEat = true;
             }
 
             if (agent == null)
@@ -67,6 +69,8 @@ namespace AIAdventure.Companion
         {
             if (state == "Interact" && hasInteract)
                 animator.SetTrigger(InteractHash);
+            else if (state == "Eat" && hasEat)
+                animator.SetTrigger(EatHash);
         }
     }
 }
