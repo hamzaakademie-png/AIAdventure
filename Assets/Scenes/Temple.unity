@@ -650,15 +650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e6ba805f6784f742a2ff7b6875cb99a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.Companion.CompanionAnimator
-  idleState: Idle
-  walkState: Walk
-  runState: Run
-  interactState: Interact
-  walkThreshold: 0.15
-  runThreshold: 2.5
-  crossFade: 0.2
-  walkAnimationSpeed: 1.5
-  runAnimationSpeed: 4
+  dampTime: 0.15
 --- !u!4 &1958986881 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6528548914600946190, guid: 1ff799cc9f68e024eab7dad67a7c60fc, type: 3}
