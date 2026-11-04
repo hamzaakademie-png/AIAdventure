@@ -19,3 +19,7 @@
 *.fbx binary
 *.wav binary
 *.mp3 binary
+
+
+*LightingData.asset binary
+NavMesh*.asset binary
