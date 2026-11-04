@@ -9,7 +9,8 @@ namespace AIAdventure.Level
 {
     /// <summary>
     /// Altıpatlar: silindiri dönebilir, ateşlenince namlu ucunda parlama olur.
-    /// Kurulum: boş bir nesneye ekle, ⋮ menüsünden "Silahı Oluştur".
+    /// Kurulum: hazır bir silah modeline ekle (Silindir boş kalabilir) ya da boş bir
+    /// nesneye ekleyip ⋮ menüsünden "Silahı Oluştur" ile basit bir silah yap.
     /// Namlu nesnenin +Z yönüne bakar.
     /// </summary>
     public class Revolver : MonoBehaviour
@@ -35,7 +36,12 @@ namespace AIAdventure.Level
         public IEnumerator SpinRoutine()
         {
             SpinStarted?.Invoke();
-            if (cylinder == null) yield break;
+            if (cylinder == null)
+            {
+                // Hazır modellerde silindir ayrı parça değilse sadece bekle (ses çalarken).
+                yield return new WaitForSeconds(spinTime);
+                yield break;
+            }
 
             for (float t = 0f; t < spinTime; t += Time.deltaTime)
             {

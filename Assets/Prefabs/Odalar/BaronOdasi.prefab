@@ -4731,6 +4731,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c2bc08522b1b0047800f5e426d801d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.UI.ImGuiRouletteView
+  baronName: Baron Mortis
+  baronPortrait: {fileID: 0}
+  playerName: Sen
+  playerPortrait: {fileID: 0}
+  lettersPerSecond: 45
+  frameColor: {r: 0.75, g: 0.6, b: 0.35, a: 1}
+  boxColor: {r: 0.05, g: 0.04, b: 0.03, a: 0.88}
+  showRulesOnSit: 1
 --- !u!114 &4686303049425698569
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -117,7 +117,7 @@ namespace AIAdventure.Roulette
                 return;
             }
 
-            if (view.IsTyping) return;
+            if (view.IsTyping || view.IsBlocking) return;
 
             if (game.IsOver)
             {
@@ -168,7 +168,7 @@ namespace AIAdventure.Roulette
         {
             try
             {
-                if (!seated || game.IsOver || baron.IsBusy) return;
+                if (!seated || game.IsOver || baron.IsBusy || view.IsBlocking) return;
 
                 if (game.Turn != RouletteTurn.Player || baronActing)
                 {

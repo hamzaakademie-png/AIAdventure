@@ -15,6 +15,9 @@ namespace AIAdventure.UI
         /// <summary>Oyuncu şu an yazı alanına yazıyor mu? (O sırada kısayol tuşları çalışmaz.)</summary>
         bool IsTyping { get; }
 
+        /// <summary>Ekranda oyunu durduran bir pencere (ör. kurallar) açık mı?</summary>
+        bool IsBlocking { get; }
+
         void Open(RouletteGame game);
         void Close();
         void AddChatLine(string speaker, string text);

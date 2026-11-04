@@ -41,6 +41,11 @@ namespace AIAdventure.NPC
         [SerializeField] private Vector3 chestOffset = new Vector3(0.1f, -0.35f, 0.35f);
         [Tooltip("Silah modelinin namlusu doğru yöne bakmıyorsa buradan döndür.")]
         [SerializeField] private Vector3 gunRotationOffset = Vector3.zero;
+        [Tooltip("Silahın ele göre kayması (silahın kendi ekseninde, metre). Kabza avuca oturmuyorsa ayarla.")]
+        [SerializeField] private Vector3 gripOffset = new Vector3(0f, 0.02f, 0.03f);
+        [Tooltip("Elin silahı kavrarken dönme açısı. Ağırlık 0 ise el animasyondaki gibi kalır.")]
+        [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
+        [SerializeField, Range(0f, 1f)] private float handRotationWeight = 0f;
         [SerializeField] private float reachTime = 0.6f;
         [SerializeField] private float raiseTime = 0.8f;
         [SerializeField] private float holdTime = 0.7f;
@@ -158,7 +163,7 @@ namespace AIAdventure.NPC
 
             yield return MoveHand(() => bullet.position, 1f, reachTime);   // mermiye uzan
             grip = Grip.Bullet;                                            // mermiyi al
-            yield return MoveHand(() => gun.position, 1f, raiseTime);      // silaha götür
+            yield return MoveHand(() => gunHomePosition, 1f, raiseTime);      // silaha götür
             bullet.gameObject.SetActive(false);                            // mermi silaha girdi
             grip = Grip.GunUpright;                                        // silahı kavra
             yield return MoveHand(ChestPosition, 1f, raiseTime);           // göğsüne kaldır
@@ -174,7 +179,7 @@ namespace AIAdventure.NPC
             if (gun == null || head == null || dead) yield break;
             StopGesture();
 
-            yield return MoveHand(() => gun.position, 1f, reachTime);   // silaha uzan
+            yield return MoveHand(() => gunHomePosition, 1f, reachTime);   // silaha uzan
             grip = Grip.GunAtTemple;                                    // kavra
             yield return MoveHand(TemplePosition, 1f, raiseTime);       // şakağa kaldır
             yield return new WaitForSeconds(holdTime);                  // gerilim
@@ -297,6 +302,12 @@ namespace AIAdventure.NPC
 
             animator.SetIKPositionWeight(AvatarIKGoal.RightHand, handWeight);
             animator.SetIKPosition(AvatarIKGoal.RightHand, handTarget);
+
+            // Silahı tutarken bileği silahın açısına çevir (isteğe bağlı).
+            bool holdingGun = grip == Grip.GunUpright || grip == Grip.GunAtTemple;
+            animator.SetIKRotationWeight(AvatarIKGoal.RightHand, holdingGun ? handRotationWeight * handWeight : 0f);
+            if (holdingGun && gun != null)
+                animator.SetIKRotation(AvatarIKGoal.RightHand, gun.rotation * Quaternion.Euler(handRotationOffset));
         }
 
         private void LateUpdate()
@@ -315,17 +326,17 @@ namespace AIAdventure.NPC
 
                 case Grip.GunUpright:
                     // Doldururken namlu yukarı bakar.
-                    gun.position = rightHand.position;
                     gun.rotation = Quaternion.LookRotation(transform.up, -transform.forward) *
                                    Quaternion.Euler(gunRotationOffset);
+                    gun.position = rightHand.position + gun.rotation * gripOffset;
                     break;
 
                 case Grip.GunAtTemple:
-                    // Şakaktayken namlu başa bakar.
-                    gun.position = rightHand.position;
-                    Vector3 toHead = head.position - gun.position;
+                    // Şakaktayken namlu başa bakar, silahın üstü yukarıda kalır.
+                    Vector3 toHead = head.position - rightHand.position;
                     if (toHead.sqrMagnitude > 0.0001f)
-                        gun.rotation = Quaternion.LookRotation(toHead) * Quaternion.Euler(gunRotationOffset);
+                        gun.rotation = Quaternion.LookRotation(toHead, transform.up) * Quaternion.Euler(gunRotationOffset);
+                    gun.position = rightHand.position + gun.rotation * gripOffset;
                     break;
             }
         }
