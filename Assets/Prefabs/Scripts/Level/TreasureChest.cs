@@ -8,7 +8,7 @@ namespace AIAdventure.Level
     /// <summary>
     /// Şifreli sandık. Oyuncu yaklaşıp F'ye basınca rakamlı kilit açılır:
     /// A/D (ya da ←/→) hane seçer, W/S (ya da ↑/↓) rakamı çevirir, Enter dener, Esc vazgeçer.
-    /// Doğru şifrede kapak açılır; içindeki eti F ile alınca oyuncunun cebine eklenir.
+    /// Doğru şifrede kapak açılır ve içindeki et otomatik olarak oyuncunun cebine eklenir.
     /// </summary>
     public class TreasureChest : MonoBehaviour
     {
@@ -70,9 +70,33 @@ namespace AIAdventure.Level
             // Sandık bir oda prefab'ının içindeyse sahnedeki oyuncuyu kendisi bulur.
             if (player == null) player = FindAnyObjectByType<PlayerMovement>();
             if (player == null) Debug.LogError("[TreasureChest] Sahnede oyuncu (PlayerMovement) bulunamadı.");
+            ResolveLid();
+
             if (commander == null && player != null) commander = player.GetComponentInChildren<PlayerCommander>();
             if (commander == null) commander = FindAnyObjectByType<PlayerCommander>();
             if (commander == null) Debug.LogError("[TreasureChest] Sahnede PlayerCommander bulunamadı; et cebe eklenemez.");
+        }
+
+        /// <summary>
+        /// Lid alanına yanlışlıkla FBX dosyasının içindeki parça (sahnedeki değil) sürüklenmiş
+        /// olabilir. O zaman sandığın kendi içinde aynı isimli parçayı bulur.
+        /// </summary>
+        private void ResolveLid()
+        {
+            if (lid == null || lid.IsChildOf(transform)) return;
+
+            string lidName = lid.name;
+            lid = null;
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                if (child != transform && child.name == lidName)
+                {
+                    lid = child;
+                    break;
+                }
+            }
+            if (lid == null)
+                Debug.LogWarning($"[TreasureChest] Kapak '{lidName}' sandığın içinde bulunamadı; kapak animasyonu atlanacak.");
         }
 
         private void Update()
@@ -156,8 +180,9 @@ namespace AIAdventure.Level
                 lid.localRotation = open;
             }
 
-            state = State.Open;
-            Show("Kilit tık diye açıldı. İçeride kurutulmuş bir et parçası var.");
+            // Et otomatik olarak alınır; oyuncunun ayrıca bir tuşa basması gerekmez.
+            yield return new WaitForSeconds(0.6f);
+            TakeMeat();
         }
 
         private void TakeMeat()
@@ -169,7 +194,7 @@ namespace AIAdventure.Level
                 commander.AddMeat(1);
                 Debug.Log($"[TreasureChest] Et '{commander.name}' nesnesindeki PlayerCommander'a eklendi. Cepteki et: {commander.MeatCount}");
             }
-            Show("Eti cebine koydun. Aç tilki bunun için her şeyi yapar.");
+            Show("Sandıktan kurutulmuş bir et parçası aldın. Şimdi kolun yanına git ve E ile tilkiye ver.");
         }
 
         private void Show(string text)
