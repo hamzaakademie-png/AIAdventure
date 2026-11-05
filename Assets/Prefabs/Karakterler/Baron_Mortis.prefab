@@ -130,7 +130,7 @@ MonoBehaviour:
   serverUrl: http://localhost:11434
   model: qwen2.5:14b
   timeoutSeconds: 60
-  temperature: 0.6
+  temperature: 0.45
   systemPromptOverride: 
   useExamples: 1
   maxHistoryMessages: 12

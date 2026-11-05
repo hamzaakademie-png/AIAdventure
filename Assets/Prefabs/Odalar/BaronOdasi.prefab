@@ -2358,7 +2358,7 @@ Transform:
   m_GameObject: {fileID: 6056960006896367887}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -3.52, z: 0}
+  m_LocalPosition: {x: 0, y: -3.293, z: 0.053}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4656,7 +4656,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8642644373641386508}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4732,9 +4732,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.UI.ImGuiRouletteView
   baronName: Baron Mortis
-  baronPortrait: {fileID: 0}
+  baronPortrait: {fileID: 2800000, guid: 08b0af858ade79e4ab950d5e685f15b7, type: 3}
   playerName: Sen
-  playerPortrait: {fileID: 0}
+  playerPortrait: {fileID: 2800000, guid: 54dd82a296e37a143b29f730e3c12643, type: 3}
   lettersPerSecond: 45
   frameColor: {r: 0.75, g: 0.6, b: 0.35, a: 1}
   boxColor: {r: 0.05, g: 0.04, b: 0.03, a: 0.88}
@@ -4756,10 +4756,10 @@ MonoBehaviour:
   exitDoor: {fileID: 831059139304948484}
   interactRange: 2.6
   baronPullDelay: 2.2
-  messagesPerTurn: 2
+  messagesPerTurn: 3
   baronBodyObject: {fileID: 0}
   sounds: {fileID: 0}
-  revolver: {fileID: 8063564418418740183}
+  revolver: {fileID: 0}
   slamDelay: 0.6
   seatOffset: {x: 0, y: 1.5, z: -1.7}
   lookOffset: {x: 0, y: 0.5, z: 1}
@@ -5107,7 +5107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5927796440919727418
 Transform:
   m_ObjectHideFlags: 0
