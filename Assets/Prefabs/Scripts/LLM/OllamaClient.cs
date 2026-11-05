@@ -15,6 +15,8 @@ namespace AIAdventure.LLM
     /// - Ana iş parçacığını bloklamaz (UnityWebRequest + await).
     /// - "format: json" ile modeli geçerli JSON üretmeye zorlar.
     /// - Sunucu kapalı, zaman aşımı, model yok gibi durumları LLMResult ile bildirir.
+    /// - Bağlam penceresi 8192'ye çıkarılır; aksi halde uzun istemin başı (kişilik ve
+    ///   kurallar) sessizce kesilir ve model alakasız cevaplar verir.
     /// </summary>
     public class OllamaClient : ILLMClient
     {
@@ -33,6 +35,9 @@ namespace AIAdventure.LLM
         {
             public float temperature;
             public int num_predict;
+            public int num_ctx;          // bağlam penceresi: varsayılan (2048) bizim istem için çok kısa
+            public float top_p;
+            public float repeat_penalty; // aynı kalıpları tekrar etmesin
         }
 
         [Serializable]
@@ -63,7 +68,14 @@ namespace AIAdventure.LLM
                 messages = new List<ChatMessage>(messages).ToArray(),
                 stream = false,
                 format = "json",
-                options = new Options { temperature = temperature, num_predict = 200 }
+                options = new Options
+                {
+                    temperature = temperature,
+                    num_predict = 200,
+                    num_ctx = 8192,
+                    top_p = 0.9f,
+                    repeat_penalty = 1.15f
+                }
             };
 
             Stopwatch watch = Stopwatch.StartNew();

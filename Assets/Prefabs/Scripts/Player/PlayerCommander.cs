@@ -6,7 +6,8 @@ namespace AIAdventure.Player
 {
     /// <summary>
     /// E tuşuna basılınca en yakın etkileşilebilir nesneyi bulur ve companion'a
-    /// "git, onu kullan" emri verir. Companion et bekliyorsa önce cepteki eti verir.
+    /// "git, onu kullan" emri verir. Companion et bekliyorsa önce cepteki eti verir
+    /// (et, girişteki şifreli sandıktan bulunur).
     /// Companion'ı sadece arayüz üzerinden tanır.
     /// </summary>
     public class PlayerCommander : MonoBehaviour
@@ -15,7 +16,8 @@ namespace AIAdventure.Player
         [SerializeField] private float commandRange = 15f;
 
         [Header("Et")]
-        [SerializeField] private int meatCount = 1;
+        [Tooltip("Oyun başında cepteki et sayısı. Eti sandıktan bulmak için 0 bırak.")]
+        [SerializeField] private int meatCount = 0;
         [SerializeField] private float messageDuration = 3f;
 
         private ICompanionCommandReceiver companion;
@@ -24,6 +26,12 @@ namespace AIAdventure.Player
         private GUIStyle style;
 
         public int MeatCount => meatCount;
+
+        /// <summary>Sandık gibi yerlerden bulunan eti cebe ekler.</summary>
+        public void AddMeat(int amount = 1)
+        {
+            meatCount += Mathf.Max(0, amount);
+        }
 
         private void Awake()
         {
@@ -59,7 +67,7 @@ namespace AIAdventure.Player
             {
                 if (meatCount <= 0)
                 {
-                    Show("Tilki ilgisiz bakıyor... Karnı aç gibi.");
+                    Show("Tilki ilgisiz bakıyor... Karnı aç gibi. Etrafta yiyecek bir şey olmalı.");
                     return;
                 }
                 meatCount--;
