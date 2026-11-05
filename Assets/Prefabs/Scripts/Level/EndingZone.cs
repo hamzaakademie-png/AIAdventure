@@ -6,22 +6,23 @@ using UnityEngine.SceneManagement;
 namespace AIAdventure.Level
 {
     /// <summary>
-    /// Oyuncu çıkışa ulaşınca oyunun bitiş ekranını gösterir.
+    /// Oyunun bitiş ekranı. Oyuncu bu alana girince ya da başka bir script
+    /// Finish() çağırınca (örn. Leyla ile karşılaşma) ekran kararır ve son yazısı çıkar.
     /// </summary>
     [RequireComponent(typeof(BoxCollider))]
     public class EndingZone : MonoBehaviour
     {
         private const float ReferenceHeight = 1080f;
 
-        [SerializeField] private string title = "TALİH TAPINAĞI'NDAN KAÇTIN";
-        [SerializeField, TextArea(3, 8)] private string body =
-            "Gün ışığı yüzüne vurduğunda arkanda mahzenin kapısı kendiliğinden kapanıyor.\n" +
-            "Leyla'nın günlüğü hâlâ cebinde. Kâtip'in masası boş, Baron'un sesi artık duyulmuyor.\n\n" +
-            "Talih bu sefer seninleydi.";
+        [SerializeField] private string endingTitle = "TALİH TAPINAĞI'NDAN KAÇTIN";
+        [SerializeField, TextArea(3, 8)] private string endingText =
+            "Arkanızda masa boş duruyor. Kartlar hâlâ dağıtılmayı, tabanca hâlâ doldurulmayı bekliyor.\n" +
+            "Tapınak hiçbir zaman sahipsiz kalmaz.\n\n" +
+            "Şimdi ne olacak? Yeni Baron sen mi olacaksın, Mecnun? Ve kartları dağıtan... Leyla mı?\n\n" +
+            "Belki de kaçmadın.";
 
         private bool finished;
         private float startTime;
-        private PlayerMovement player;
         private Texture2D black;
         private GUIStyle titleStyle;
         private GUIStyle bodyStyle;
@@ -33,13 +34,17 @@ namespace AIAdventure.Level
 
         private void OnTriggerEnter(Collider other)
         {
-            if (finished) return;
-            player = other.GetComponentInParent<PlayerMovement>();
-            if (player == null) return;
+            PlayerMovement player = other.GetComponentInParent<PlayerMovement>();
+            if (player != null) Finish(player);
+        }
 
+        /// <summary>Bitiş ekranını açar.</summary>
+        public void Finish(PlayerMovement player)
+        {
+            if (finished) return;
             finished = true;
             startTime = Time.time;
-            player.SetInputEnabled(false);
+            if (player != null) player.SetInputEnabled(false);
             Debug.Log("[Oyun] Bitti: oyuncu çıkışa ulaştı.");
         }
 
@@ -78,9 +83,9 @@ namespace AIAdventure.Level
 
             GUI.color = new Color(1f, 1f, 1f, alpha);
             GUI.DrawTexture(new Rect(0f, 0f, width, ReferenceHeight), black);
-            GUI.Label(new Rect(0f, 300f, width, 100f), title, titleStyle);
+            GUI.Label(new Rect(0f, 300f, width, 100f), endingTitle, titleStyle);
             GUI.Label(new Rect((width - 1000f) / 2f, 430f, 1000f, 300f),
-                body + "\n\n[R] Yeniden oyna     [Esc] Çık", bodyStyle);
+                endingText + "\n\n[R] Yeniden oyna     [Esc] Çık", bodyStyle);
             GUI.color = Color.white;
         }
 
