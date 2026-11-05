@@ -137,6 +137,7 @@ cümleleriyle denendi. Ham çıktılar: `Docs/Testler/`.
 |---|---|---|---|---|
 | qwen2.5:14b | 6/8 | ~19 sn | Zayıf: uydurma kelimeler, bozuk cümleler | Hikaye bilgisini az kullandı; bir blöfü hakaret sınıflayıp oyuncuyu haksız cezalandırdı |
 | gemma2:9b | 7/9 | ~12 sn | Orta: dilbilgisi daha düzgün, anlam yer yer kayıyor | Blöfleri doğru sınıfladı; bir pazarlığı blöf sandı, hikaye bilgisini kısmen karıştırdı |
+| gemma3:4b | 6/9 | ~3.5 sn | Zayıf: kısa ve içi boş cevaplar, hikaye bilgisini uyduruyor | En hızlı model; ancak soruları blöf sayıp etkiyi şişirdi, Baron birkaç mesajda pes etti |
 
 ### 5.3 Ekran Görüntüleri
 _Görseller `Docs/Screenshots/` klasöründe._
