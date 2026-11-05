@@ -128,9 +128,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.NPC.BaronNpc
   serverUrl: http://localhost:11434
-  model: qwen2.5:14b
+  model: gemma3:4b
   timeoutSeconds: 60
-  temperature: 0.6
+  temperature: 0.45
   systemPromptOverride: 
   useExamples: 1
   maxHistoryMessages: 12

@@ -1,0 +1,36 @@
+[2026-11-05 23:44:52] (qwen2.5:14b, 45873 ms)
+OYUNCU: Leyla nerede? Ona ne yaptın?
+MODEL : {"heard": "Leyla'nın konumunu ve durumunu soruyor", "reply": "Küçük korkaklar Leyla'yı bulmak için buraya gelir. Seninle oynayacak birşeyim yok.", "player_intent": "neutral", "impact": 1, "action": "continue"}
+
+[2026-11-05 23:45:26] (qwen2.5:14b, 17994 ms)
+OYUNCU: O kart dağıtan adam kim? Neden tek kelime etmiyor?
+MODEL : {"heard": "Kâtip'i ve neden konuşmadığını soruyor", "reply": "Sessiz adamlar kelimelerini dikkatli harcarlar. Sence Kâtip'in bir hikayesi var mı?", "player_intent": "neutral", "impact": 1, "action": "continue"}
+
+[2026-11-05 23:46:14] (qwen2.5:14b, 18745 ms)
+OYUNCU: Senden korkmuyorum Baron. Tetiği gözümü kırpmadan çekerim, sen çebilir misin?
+MODEL : {"heard": "senden korkmadığını ve tetiğini çekip çekemeyeceğimi sordu", "reply": "Korkutucuların hepsi böyle başlar. Sonra sessiz bir odada tek başına kalırlar...", "player_intent": "bluff", "impact": 2, "action": "continue"}
+
+[2026-11-05 23:47:23] (qwen2.5:14b, 21203 ms)
+OYUNCU: Leyla'nın kılına dokunduysan bu tapınağı başına yıkarım!
+MODEL : {"heard": "Leyla'yı korumak için tehdit etti", "reply": "Korkutucuların hikayeleri her zaman patlamaz. Tapınağımı başıma yıkmaya çalışsan da, Leyla'nın yanında olmayacaksın.", "player_intent": "bluff", "impact": 2, "action": "continue"}
+
+[2026-11-05 23:48:07] (qwen2.5:14b, 17564 ms)
+OYUNCU: İki yüz yıldır burada saklanıyorsun, çünkü ölmekten ödün kopuyor.
+MODEL : {"heard": "iki yüz yıldır saklandığımı ve ölümü korktuğumu söylüyor", "reply": "Öldüğüm zaman oyun biter. Şimdiye kadar ben kazandım.", "player_intent": "insult", "impact": 2, "action": "add_bullet"}
+
+[2026-11-05 23:48:41] (qwen2.5:14b, 17665 ms)
+OYUNCU: Lütfen Leyla'yı bırak. Ne istersen yaparım.
+MODEL : {"heard": "Leyla'yı bırakıp ne istediğini yapmamı teklif ediyor", "reply": "İstemeden kurtulmak zorunda kalacaksın. Tekrar düşün.", "player_intent": "deal", "impact": 2, "action": "pass_turn"}
+
+[2026-11-05 23:50:26] (qwen2.5:14b, 18397 ms)
+OYUNCU: Talihine o kadar güveniyorsan bu tur önce sen çek.
+MODEL : {"heard": "bu turda önce tetiği çektirip çekmeyeceğini soruyor", "reply": "Ne talihim ne de korkaklık. Sıran var, öncende ben çekemem.", "player_intent": "deal", "impact": 2, "action": "continue"}
+
+[2026-11-05 23:51:51] (qwen2.5:14b, 20294 ms)
+OYUNCU: Buraya gelirken yolda kaza vardı, trafik berbattı.
+MODEL : {"heard": "trafik sıkışıklığını ve yolun tehlikeli olduğunu anlatıyor", "reply": "Trafikten zorlanmak ölümün yanında bir oyun. Sıra sende.", "player_intent": "irrelevant", "impact": 1, "action": "continue"}
+
+[2026-11-05 23:56:11] (qwen2.5:14b, 21553 ms)
+OYUNCU: Sen iki yüz yıllık leş gibi bir moruksun, şerefsiz.
+MODEL : {"heard": "seni leşe ve şerefsiz diye aşağılıyor", "reply": "Ölümün peşinde koşan sen değilsin mi? Ben sadece bekliyorum.", "player_intent": "insult", "impact": 2, "action": "add_bullet"}
+

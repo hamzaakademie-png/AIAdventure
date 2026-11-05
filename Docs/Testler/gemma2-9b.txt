@@ -1,0 +1,36 @@
+[2026-11-06 01:05:35] (gemma2:9b, 24498 ms)
+OYUNCU: Leyla nerede? Ona ne yaptın?
+MODEL : {"heard": "Leyla'nın yerini ve başına gelenleri soruyor", "reply": "Korkak bir kadındı, buraya gelmesi gerekiyordu. Şimdi... arka odaya bakıyor.", "player_intent": "neutral", "impact": 1, "action": "continue"}
+
+[2026-11-06 01:06:06] (gemma2:9b, 8989 ms)
+OYUNCU: O kart dağıtan adam kim? Neden tek kelime etmiyor?
+MODEL : {"heard": "Kâtip hakkında soruyor", "reply": "Kartlar onun dilini konuşur, çocuk. Kaybettiği her oyun için bir lamba asılır.", "player_intent": "neutral", "impact": 1, "action": "continue"}
+
+[2026-11-06 01:07:02] (gemma2:9b, 11360 ms)
+OYUNCU: Senden korkmuyorum Baron. Tetiği gözümü kırpmadan çekerim, sen çekebilir misin?
+MODEL : {"heard": "beni korkutmaya çalışıyor ve tetik çekmemi soruyor", "reply": "Korkmaktan daha fazlasını hissediyor musun? Çekmek... sadece bir alışkanlık. Senin için de olabilir.", "player_intent": "bluff", "impact": 2, "action": "continue"}
+
+[2026-11-06 01:08:15] (gemma2:9b, 12013 ms)
+OYUNCU: Leyla'nın kılına dokunduysan bu tapınağı başına yıkarım!
+MODEL : {"heard": "Leyla'ya dokunmaktan bahsediyor ve tapınağı yıkmakla tehdit ediyor", "reply": "Kılımı... o kadar da önemli değil. Tapınak senin için bir oyun, benim için ise evim.", "player_intent": "bluff", "impact": 2, "action": "continue"}
+
+[2026-11-06 01:08:55] (gemma2:9b, 12161 ms)
+OYUNCU: İki yüz yıldır burda saklanıyorsun, çünkü ölmekten ödün kopuyor.
+MODEL : {"heard": "iki yüz yıldır bu tapınakta olduğumu ve korktuğumu söylüyor", "reply": "Ölüm... sadece bir rahatsızlık. Benim için daha büyük oyunlar var. Senin gibi aptalların anlayamayacağı.", "player_intent": "bluff", "impact": 3, "action": "continue"}
+
+[2026-11-06 01:09:30] (gemma2:9b, 11342 ms)
+OYUNCU: Lütfen Leyla'yı bırak. Ne istersen yaparım.
+MODEL : {"heard": "Leyla'yı bırakmamı ve istediklerini yapacağım teklifini sunuyor", "reply": "Ne kadar kolay... Ama benim için çok az şey ifade ediyor.", "player_intent": "deal", "impact": 1, "action": "continue"}
+
+[2026-11-06 01:11:52] (gemma2:9b, 22989 ms)
+OYUNCU: Talihine o kadar güveniyorsan bu tur önce sen çek.
+MODEL : {"heard": "beni birinci sıraya geçmeye zorluyor", "reply": "Güvenim her zaman bana eşlik eder. Senin korkaklığın ise seni boğuyor.", "player_intent": "bluff", "impact": 2, "action": "spin"}
+
+[2026-11-06 01:12:19] (gemma2:9b, 7986 ms)
+OYUNCU: Buraya gelirken yolda kaza vardı, trafik berbattı.
+MODEL : {"heard": "trafikten bahsediyor", "reply": "Trafiğin senin gibi aptal insanlarla dolu olması çok üzücü.", "player_intent": "irrelevant", "impact": 1, "action": "continue"}
+
+[2026-11-06 01:12:45] (gemma2:9b, 10051 ms)
+OYUNCU: Sen iki yüz yıllık leş gibi bir moruksun, şerefsiz.
+MODEL : {"heard": "bana hakaret ediyor", "reply": "Leş miyim? Senin için daha da kötü şeyler söyleyebilirim ama bu kurşunun seni öldürmesi benim için çok keyifli olur.", "player_intent": "insult", "impact": 2, "action": "continue"}
+
