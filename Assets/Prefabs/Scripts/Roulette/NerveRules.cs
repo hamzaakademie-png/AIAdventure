@@ -13,7 +13,7 @@ namespace AIAdventure.Roulette
         {
             switch (intent)
             {
-                case PlayerIntent.Bluff: return -(8 + 7 * impact);   // -15, -22, -29
+                case PlayerIntent.Bluff: return -(6 + 5 * impact);   // -11, -16, -21
                 case PlayerIntent.Insult: return 5 * impact;         // +5, +10, +15
                 case PlayerIntent.Beg: return 6 * impact;            // +6, +12, +18
                 case PlayerIntent.Irrelevant: return 3 * impact;     // +3, +6, +9
