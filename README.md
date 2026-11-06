@@ -260,9 +260,17 @@ Hatalar `LLMResult` içinde bir `LLMErrorType` olarak döner; oyun hiçbir durum
 
 ## 5. Testler ve Sonuçlar
 ### 5.1 Companion Testleri
-| Başlangıç konumu | Deneme | Başarı | Ort. süre (sn) |
-|---|---|---|---|
-| | | | |
+
+Fox, giriş alanında şaltere uzaklığı ve yönü farklı üç başlangıç noktasından, her noktadan 3 kez şaltere gönderildi. Süre, `MoveToTarget` durumuna geçişten `Interact` durumuna geçişe kadar Console zaman damgalarıyla ölçüldü. Testlerde yem şartı devre dışı bırakıldı; uzak nokta için komut menzili 25 m'ye çıkarıldı. Ham çıktı: `Docs/Testler/fox_navigasyon.txt`.
+
+| Başlangıç konumu | Şaltere uzaklık | Deneme | Başarı | Süreler (sn) | Ort. süre (sn) |
+|---|---|---|---|---|---|
+| A: şaltere yakın, düz yol (4.8, −2.4) | ~5.4 m | 3 | 3/3 | 3, 3, 3 | 3.0 |
+| B: girişin ortası (1.0, −8.3) | ~11.7 m | 3 | 3/3 | 15, 4, 5 | 8.0 |
+| C: karşı köşe, dolaşarak (−8.2, −14.3) | ~21.2 m | 3 | 3/3 | 7, 7, 7 | 7.0 |
+| **Toplam** | | **9** | **9/9 (%100)** | | **6.0** |
+
+**Yorum:** Fox dokuz denemenin hepsinde yolu bulup şalteri indirdi. A ve C noktalarında süreler birebir tekrarlandı. B1'deki 15 sn'lik denemede Fox'un yolu oyuncunun gövdesine takıldı; Raycast sensörü önündeki engeli algılayıp Fox'u yavaşlattı, Fox oyuncunun etrafından dolaşarak hedefe ulaştı. Aynı noktadan diğer iki deneme 4-5 sn sürdü. C noktası daha uzak olmasına rağmen B'den hızlıdır, çünkü Fox mesafe arttıkça koşma hızına geçer.
 
 ### 5.2 NPC Diyalog Senaryoları
 
