@@ -28,6 +28,7 @@ namespace AIAdventure.LLM
             public bool stream;
             public string format;
             public Options options;
+            public string keep_alive = "30m"; // model 30 dk bellekte kalsın, ilk mesaj gecikmesin
         }
 
         [Serializable]

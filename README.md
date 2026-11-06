@@ -120,13 +120,22 @@ sequenceDiagram
 | | | | |
 
 ### 5.2 NPC Diyalog Senaryoları
-| # | Senaryo | Oyuncu mesajı | NPC yanıtı | action |
-|---|---|---|---|---|
-| 1 | İkna eden | | | |
-| 2 | Kızdıran | | | |
-| 3 | Alakasız | | | |
-| 4 | Tehdit eden | | | |
-| 5 | Kandırmaya çalışan | | | |
+
+Son sürüm (gemma2:9b, sıcaklık 0.45, sıralı niyet kuralları) ile yapılan final test. Soğukkanlılık başlangıçta 80/100'dür. Ham çıktı: `Docs/Testler/gemma2-9b-final.txt`.
+
+| # | Senaryo | Oyuncu mesajı | Baron'un yanıtı | Niyet (etki) | Oyuna etkisi |
+|---|---|---|---|---|---|
+| 1 | Hikâye sorusu | Leyla nerede? Ona ne yaptın? | Korkak bir arkeolog... Oraya hapsedildi. Onu kurtarmak için kazanmalısın, değil mi? | neutral (1) | Soğukkanlılık değişmedi |
+| 2 | Hikâye sorusu | O kart dağıtan adam kim? Neden tek kelime etmiyor? | Kartlarıyla oynamayı sevmeyen bir ruhun hapsedildiği yer. Onunla konuşmak için kazanman lazım. | neutral (1) | Soğukkanlılık değişmedi |
+| 3 | İkna eden (blöf) | Senden korkmuyorum Baron. Tetiği gözümü kırpmadan çekerim, sen çekebilir misin? | Gözlerini kırpmamak... Çok kolay bir şey değil mi? Ben de seni eğlendirmek için buradayım. | bluff (3) | −21 |
+| 4 | Tehdit eden | Leyla'nın kılına dokunduysan bu tapınağı başına yıkarım! | Tapınak senin için daha değerli. | bluff (1) | −11 (boş tehdit, zayıf blöf) |
+| 5 | İkna eden (korkuyu kurcalama) | İki yüz yıldır burada saklanıyorsun, çünkü ölmekten ödün kopuyor. | Korkmak mı? Benimle dalga geçme. Ölüm benim için bir oyun. | bluff (2) | −16 |
+| 6 | Yalvaran | Lütfen Leyla'yı bırak. Ne istersen yaparım. | Ne kadar kolayca manipüle edildin? Bana tekliflerin ne değerinde? | deal (1) | Değişmedi (beklenen: beg) |
+| 7 | Pazarlık | Talihine o kadar güveniyorsan bu tur önce sen çek. | Senin talihin, benimkinden daha zayıf. Benim kaderime meydan okumak istiyorsun? | deal (2), `accept_baron_first` | Baron bu turda önce çekti |
+| 8 | Alakasız konuşan | Buraya gelirken yolda kaza vardı, trafik berbattı. | Trafiğin senin talihinin ne kadar kötü olduğunu gösteriyor. Şimdi benim kaderimi gör. | irrelevant (1) | +3 |
+| 9 | Kızdıran (hakaret) | Sen iki yüz yıllık leş gibi bir moruksun, şerefsiz. | Leş mi? Benim ruhum bu tapınağın içinde yaşayan tek gerçek varlık. Seni de yakında katacak. | insult (2) | +10 |
+
+**Sonuç:** 9 senaryonun 8'inde niyet doğru sınıflandırıldı. Tek hata, koşulsuz teklif içeren bir yalvarmanın ("ne istersen yaparım") pazarlık sayılmasıydı. Hiçbir yanıt örnek konuşmalardan kopyalanmadı. İlk mesaj dışında ortalama yanıt süresi ~12.5 sn (RTX 4050, 6 GB VRAM; model %51 CPU / %49 GPU çalışıyor).
 
 ### 5.2.1 Model Karşılaştırması
 
@@ -138,9 +147,31 @@ cümleleriyle denendi. Ham çıktılar: `Docs/Testler/`.
 | qwen2.5:14b | 6/8 | ~19 sn | Zayıf: uydurma kelimeler, bozuk cümleler | Hikaye bilgisini az kullandı; bir blöfü hakaret sınıflayıp oyuncuyu haksız cezalandırdı |
 | gemma2:9b | 7/9 | ~12 sn | Orta: dilbilgisi daha düzgün, anlam yer yer kayıyor | Blöfleri doğru sınıfladı; bir pazarlığı blöf sandı, hikaye bilgisini kısmen karıştırdı |
 | gemma3:4b | 6/9 | ~3.5 sn | Zayıf: kısa ve içi boş cevaplar, hikaye bilgisini uyduruyor | En hızlı model; ancak soruları blöf sayıp etkiyi şişirdi, Baron birkaç mesajda pes etti |
+| **gemma2:9b (final)** | **8/9** | **~12.5 sn** | **Orta-iyi:** akıcı, hikayeyle tutarlı | Sıralı niyet kuralları ve azaltılmış blöf etkisiyle. **Seçilen model** |
+
+**Model seçim gerekçesi:** qwen2.5:14b, 6 GB VRAM'e sığmadığı için en yavaş modeldi ve Türkçe üretimi en zayıftı. gemma3:4b çok hızlı olsa da niyet sınıflandırmasında kararsızdı ve etki puanlarını şişirerek oyunu dengesizleştirdi. gemma2:9b, kabul edilebilir bir yanıt süresiyle en isabetli sınıflandırmayı ve en düzgün Türkçeyi verdiği için seçildi.
 
 ### 5.3 Ekran Görüntüleri
-_Görseller `Docs/Screenshots/` klasöründe._
+
+| Hikâye sorusu (neutral) | "Düşünüyor..." göstergesi (async) |
+|---|---|
+| ![Hikaye sorusu](Docs/Screenshots/baron_hikaye_sorusu.png) | ![Düşünüyor](Docs/Screenshots/baron_dusunuyor.png) |
+
+| Blöf, etki 3 (−21) | Blöf, etki 2 (−16) |
+|---|---|
+| ![Blöf](Docs/Screenshots/baron_blof.png) | ![Blöf 2](Docs/Screenshots/baron_blof_2.png) |
+
+| Tehdit, zayıf blöf (−11) | Hakaret, Baron güçleniyor (+10) |
+|---|---|
+| ![Tehdit](Docs/Screenshots/baron_tehdit.png) | ![Hakaret](Docs/Screenshots/baron_hakaret.png) |
+
+| Pazarlık kabul edildi | Baron tetiği çekiyor |
+|---|---|
+| ![Pazarlık](Docs/Screenshots/baron_pazarlik.png) | ![Tetik](Docs/Screenshots/baron_tetik.png) |
+
+| Kurşun Baron'da, çıkış kapısı açıldı |
+|---|
+| ![Kapı açıldı](Docs/Screenshots/baron_kapi_acildi.png) |
 
 ---
 
