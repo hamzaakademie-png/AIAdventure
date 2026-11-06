@@ -2004,8 +2004,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e221a66a5e0b02845bae96e3770be3b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIAdventure.Level.Note
-  title: "Kaz\u0131 G\xFCnl\xFC\u011F\xFC \u2014 3. G\xFCn"
-  body: "Haritadaki i\u015Faret do\u011Fruymu\u015F. Tap\u0131na\u011F\u0131n alt\u0131nda, merdivenlerin bitti\u011Fi yerde eski bir mahzen var. K\xF6yl\xFCler buraya \"Talih Tap\u0131na\u011F\u0131\" diyor ve kimse yakla\u015Fm\u0131yor.\n\nGarip olan \u015Fu: duvarlardaki me\u015Faleler biz gelmeden \xF6nce de yan\u0131yordu. Kerem bunun birinin \u015Fakas\u0131 oldu\u011Funu s\xF6yl\xFCyor. Ben o kadar emin de\u011Filim.\n\n\u2014 Dr. Leyla Aras"
+  title: "Y\u0131rt\u0131k Bir Sayfa"
+  body: "Bu sayfalar\u0131 yazan benim. Ad\u0131m\u0131n bir \xF6nemi yok.\n\nBir gece r\xFCyamda da\u011F\u0131n i\xE7ine oyulmu\u015F bir tap\u0131nak g\xF6rd\xFCm. Suna\u011F\u0131n \xF6n\xFCnde bir adam \u015Faka\u011F\u0131na tabanca day\u0131yordu. Kur\u015Fun \xE7\u0131kmad\u0131 ve adam bir dilekte bulundu. Talih dile\u011Fi kabul etti, ama kar\u015F\u0131l\u0131\u011F\u0131nda onu ta\u015Flara zincirledi.\n\nAyn\u0131 r\xFCyada kendi \xF6l\xFCm\xFCm\xFC de g\xF6rd\xFCm.\n\nYine de gidece\u011Fim. S\xF6ylemem gereken bir \u015Fey var ve onu ancak o adam\u0131n y\xFCz\xFCne s\xF6yleyebilirim. Bu sayfalar\u0131, bir g\xFCn biri okusun diye geride b\u0131rak\u0131yorum.\n"
 --- !u!1 &8709706708852997038
 GameObject:
   m_ObjectHideFlags: 0
