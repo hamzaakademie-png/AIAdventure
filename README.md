@@ -52,6 +52,22 @@ flowchart LR
     H --> I[Leyla ile kavuşma]
 ```
 
+### 1.3 Mahzen Notları
+Hikâye, oyuncunun yol boyunca okuduğu altı notla anlatılır (`Note` bileşeni, `F` ile okunur). Notlar yalnızca hikâyeyi
+anlatır; oyuncuya Baron'la ruletteki konuşma için bir ipucu vermez.
+
+| Konum | Not | Anlattığı |
+|---|---|---|
+| Giriş | Kapıya Kazınmış Satırlar | Tapınağın lanetli ruhlarının uyarısı; ilk sınavın tilki olduğu ve sandık bulmacasının ipucu |
+| Mahzen | Kapının Üstündeki Yazıt | Tapınağın kuralları: masaya oturan hayatını ortaya koyar, kaybedenler için lamba asılır |
+| Mahzen | Yırtık Bir Sayfa | Kâhinin rüyası: Baron'un dileği ve kâhinin kendi ölümünü bile bile tapınağa gelmesi |
+| Mahzen | Kehanet | Kehanetin ilk yarısı; sonu yırtılmıştır |
+| Avlu | Kâtip | Kâtip'in Baron'un eski kâhyası olduğu ve 21 masasının kuralı |
+| Avlu | Leyla'nın Defteri | Baron Mortis'in kim olduğu, dileği ve iki yüz yıllık tutsaklığı |
+
+**Tasarım kararı:** Kehanetin sonu (Baron'un en zayıf noktası) notlarda bilerek yer almaz; hikâyede Baron o sayfayı
+yırtmıştır. Oyuncu Baron'u sarsmanın yolunu notlardan değil, konuşarak bulmalıdır.
+
 ---
 
 ## 2. Otonom AI Kahraman (Companion)
