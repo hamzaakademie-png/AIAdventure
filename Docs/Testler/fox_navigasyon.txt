@@ -1,0 +1,23 @@
+FOX (COMPANION) NAVİGASYON TESTİ
+Tarih: 2026-11-06 | Unity Editor (Play modu) | Hedef: şalter (Lever), konum (X 4, Z 3)
+Ölçüm: Console zaman damgaları, "[Companion] Durum: MoveToTarget" -> "[Companion] Durum: Interact"
+Başarı ölçütü: "[Lever] Şalter indirildi." satırının çıkması
+Test koşulu: Yem şartı (Requires Treat) test için kapatıldı. C noktası için komut menzili
+(Command Range) 15 m'den 25 m'ye çıkarıldı.
+
+NOKTA A  Fox (X 4.82, Z -2.37)   şaltere ~5.4 m   (şaltere yakın, düz yol)
+  A1  14:56:51 -> 14:56:54   3 sn   başarılı
+  A2  14:57:53 -> 14:57:56   3 sn   başarılı
+  A3  14:58:22 -> 14:58:25   3 sn   başarılı
+
+NOKTA B  Fox (X 0.96, Z -8.32)   şaltere ~11.7 m  (girişin ortası)
+  B1  15:00:25 -> 15:00:40  15 sn   başarılı (Fox oyuncuya takıldı, etrafından dolaştı)
+  B2  15:01:18 -> 15:01:22   4 sn   başarılı
+  B3  15:02:09 -> 15:02:14   5 sn   başarılı
+
+NOKTA C  Fox (X -8.23, Z -14.34) şaltere ~21.2 m  (girişin karşı köşesi, dolaşarak)
+  C1  15:07:17 -> 15:07:24   7 sn   başarılı
+  C2  15:08:04 -> 15:08:11   7 sn   başarılı
+  C3  15:08:42 -> 15:08:49   7 sn   başarılı
+
+TOPLAM: 9/9 başarılı
